@@ -1,0 +1,7 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="thao_cartAbandonment_cron_job" instance="Thao\CartAbandonment\Cron\CartAbandonment" method="execute">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+    </group>
+</config>
