@@ -2,14 +2,14 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <!-- Tab chính -->
-        <tab id="Cart" translate="label" sortOrder="100">
+        <tab id="cart" translate="label" sortOrder="100">
             <label>CartAbandonment</label>
         </tab>
 
         <!-- Section -->
         <section id="CartAbandonment" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
             <label>Cart</label>
-            <tab>Cart</tab>
+            <tab>cart</tab>
             <resource>Thao_CartAbandonment::Car_config</resource>
 
             <!-- Group -->
@@ -25,7 +25,16 @@
                 <!-- New Field for Time Input -->
                 <field id="filter_time" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enter Time </label>
-
+                </field>
+                <field id="email_template" translate="label" type="select" sortOrder="3" showInDefault="1" showInStore="1" showInWebsite="1">
+                    <label>Test Tab Email Template</label>
+                    <comment>Test tab email sent to xyz.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
+                </field>
+                <field id="discount_code" translate="label" type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Discount Coupon Code</label>
+                    <comment>Select a coupon code from Cart Price Rules to send to abandonment customers.</comment>
+                    <source_model>Thao\CartAbandonment\Model\Config\Source\Coupon</source_model>
                 </field>
             </group>
         </section>
