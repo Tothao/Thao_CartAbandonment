@@ -12,21 +12,14 @@ Class Coupon implements ArrayInterface {
         $options = [];
 
         $ruleCollection = $this->ruleCollectionFactory->create();
-        $ruleCollection->getSelect()->joinLeft(
-            ['src' => 'salesrule_coupon'],   // Alias cho bảng salesrule_coupon
-            'main_table.rule_id = src.rule_id AND src.is_primary = 1', // Điều kiện join
-            ['code']  // Chỉ lấy cột "code" từ bảng salesrule_coupon
-        );
-        $ruleCollection ->addFieldToFilter('is_active',1);
         foreach ($ruleCollection as $rule) {
-            $couponCode = $rule->getData('code');
             $options[] = [
-                'value' => $couponCode ?: '',
+                'value' => $rule->getId(),
                 'label' => $rule->getName()
             ];
         }
 
-        return $options;  // return array of options
+        return $options;
     }
 }
 

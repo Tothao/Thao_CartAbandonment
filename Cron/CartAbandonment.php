@@ -5,7 +5,7 @@ use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Translate\Inline\StateInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
-
+use Magento\SalesRule\Model\RuleFactory;
 
 
 class CartAbandonment{
@@ -15,13 +15,18 @@ class CartAbandonment{
     protected $inlineTranslation;
     protected $quoteRepository;
 
+    protected $ruleFactory;
+
+    protected $couponGenerator;
 
     public function __construct(
         CollectionFactory $quoteCollectionFactory,
         TransportBuilder $transportBuilder,
         ScopeConfigInterface $scopeConfig,
         StateInterface $inlineTranslation,
-        CartRepositoryInterface $quoteRepository,  // Inject CartRepositoryInterface
+        CartRepositoryInterface $quoteRepository,
+        RuleFactory $ruleFactory,
+        \Magento\SalesRule\Model\CouponGenerator $couponGenerator
 
 
     ) {
@@ -29,7 +34,9 @@ class CartAbandonment{
         $this->transportBuilder = $transportBuilder;
         $this->scopeConfig = $scopeConfig;
         $this->inlineTranslation = $inlineTranslation;
-        $this->quoteRepository = $quoteRepository;  // Inject CartRepositoryInterface
+        $this->quoteRepository = $quoteRepository;
+        $this->ruleFactory = $ruleFactory;
+        $this->couponGenerator = $couponGenerator;
 
     }
     public function execute(){
@@ -59,7 +66,17 @@ class CartAbandonment{
         }
         }
 
-
+    public function autoGerenateCouponCode($ruleId)
+    {
+        $data = array(
+            'rule_id' => $ruleId,
+            'qty' => '1',
+            'length' => '12',
+            'format' => 'alphanum',
+        );
+        $code = $this->couponGenerator->generateCodes($data);
+        return $code;
+    }
 
     protected function sendAbandonmentEmail($quote){
         $customerEmail = $quote->getCustomerEmail();
@@ -68,9 +85,11 @@ class CartAbandonment{
             ->getValue('trans_email/ident_general/email', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
         $senderName = $this->scopeConfig
             ->getValue('trans_email/ident_general/name', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $couponCode = $this->scopeConfig->getValue(
+        $ruleId = $this->scopeConfig->getValue(
             'CartAbandonment/general/discount_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
+
+        $couponCode = $this->autoGerenateCouponCode($ruleId);
 
         try {
             $this->inlineTranslation->suspend();
