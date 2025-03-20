@@ -14,11 +14,8 @@ class CartAbandonment{
     protected $scopeConfig;
     protected $inlineTranslation;
     protected $quoteRepository;
-
     protected $ruleFactory;
-
     protected $couponGenerator;
-
     public function __construct(
         CollectionFactory $quoteCollectionFactory,
         TransportBuilder $transportBuilder,
