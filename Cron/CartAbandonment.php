@@ -1,21 +1,70 @@
 <?php
+
 namespace Thao\CartAbandonment\Cron;
+
+use DateTime;
+use Exception;
+use Magento\Framework\App\Area;
 use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory;
 use Magento\Framework\Mail\Template\TransportBuilder;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Translate\Inline\StateInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\SalesRule\Model\CouponGenerator;
 use Magento\SalesRule\Model\RuleFactory;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\Store;
 
-
-class CartAbandonment{
+class CartAbandonment
+{
+    public const ABANDONMENT_STATUS_NOT_SEND = 0;
+    public const ABANDONMENT_STATUS_SEND = 1;
+    /**
+     * @var CollectionFactory
+     */
     protected $quoteCollectionFactory;
+
+    /**
+     * @var TransportBuilder
+     */
     protected $transportBuilder;
+
+    /**
+     * @var ScopeConfigInterface
+     */
     protected $scopeConfig;
+
+    /**
+     * @var StateInterface
+     */
     protected $inlineTranslation;
+
+    /**
+     * @var CartRepositoryInterface
+     */
     protected $quoteRepository;
+
+    /**
+     * @var RuleFactory
+     */
     protected $ruleFactory;
+
+    /**
+     * @var CouponGenerator
+     */
     protected $couponGenerator;
+
+    protected $helper;
+
+    /**
+     * @param CollectionFactory $quoteCollectionFactory
+     * @param TransportBuilder $transportBuilder
+     * @param ScopeConfigInterface $scopeConfig
+     * @param StateInterface $inlineTranslation
+     * @param CartRepositoryInterface $quoteRepository
+     * @param RuleFactory $ruleFactory
+     * @param CouponGenerator $couponGenerator
+     */
     public function __construct(
         CollectionFactory $quoteCollectionFactory,
         TransportBuilder $transportBuilder,
@@ -23,9 +72,8 @@ class CartAbandonment{
         StateInterface $inlineTranslation,
         CartRepositoryInterface $quoteRepository,
         RuleFactory $ruleFactory,
-        \Magento\SalesRule\Model\CouponGenerator $couponGenerator
-
-
+        CouponGenerator $couponGenerator,
+        \Thao\CartAbandonment\Helper\Data $helper
     ) {
         $this->quoteCollectionFactory = $quoteCollectionFactory;
         $this->transportBuilder = $transportBuilder;
@@ -34,23 +82,20 @@ class CartAbandonment{
         $this->quoteRepository = $quoteRepository;
         $this->ruleFactory = $ruleFactory;
         $this->couponGenerator = $couponGenerator;
+        $this->helper = $helper;
 
     }
-    public function execute(){
-        $isCronEnabled = $this->scopeConfig->isSetFlag(
-            'CartAbandonment/general/enable',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
 
-        if($isCronEnabled){
-            $filterTime = $this->scopeConfig->getValue(
-                'CartAbandonment/general/filter_time',
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-            );
+    public function execute()
+    {
+        $isCronEnabled = $this->helper->isEnable();
+
+        if ($isCronEnabled) {
+            $filterTime = $this->helper->getFilterTime();
 
             $quoteCollection = $this->quoteCollectionFactory->create();
-            $timeLimit = (New \DateTime())->modify("-". $filterTime ." hours")->format('Y-m-d H:i:s');
-            $quoteCollection->addFieldToFilter('abandonment_status', 0);
+            $timeLimit = (new DateTime())->modify("-" . $filterTime . " hours")->format('Y-m-d H:i:s');
+            $quoteCollection->addFieldToFilter('abandonment_status', self::ABANDONMENT_STATUS_NOT_SEND);
             $quoteCollection->addFieldToFilter('customer_email', ['notnull' => true]);
             $quoteCollection->addFieldToFilter('updated_at', ['lt' => $timeLimit]);
             if (!$quoteCollection->getSize()) {
@@ -61,62 +106,38 @@ class CartAbandonment{
                 $this->sendAbandonmentEmail($quote);
             }
         }
-        }
-
-    public function autoGerenateCouponCode($ruleId)
-    {
-        $data = array(
-            'rule_id' => $ruleId,
-            'qty' => '1',
-            'length' => '12',
-            'format' => 'alphanum',
-        );
-        $code = $this->couponGenerator->generateCodes($data);
-        return $code;
     }
 
-    protected function sendAbandonmentEmail($quote){
+    protected function sendAbandonmentEmail($quote)
+    {
         $customerEmail = $quote->getCustomerEmail();
-        $customerName = $quote->getCustomerFirstname().' '.$quote->getCustomerLastname();
+        $customerName = $quote->getCustomerFirstname() . ' ' . $quote->getCustomerLastname();
         $senderEmail = $this->scopeConfig
-            ->getValue('trans_email/ident_general/email', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+            ->getValue('trans_email/ident_general/email', ScopeInterface::SCOPE_STORE);
         $senderName = $this->scopeConfig
-            ->getValue('trans_email/ident_general/name', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-        $ruleId = $this->scopeConfig->getValue(
-            'CartAbandonment/general/discount_code', \Magento\Store\Model\ScopeInterface::SCOPE_STORE
-        );
+            ->getValue('trans_email/ident_general/name', ScopeInterface::SCOPE_STORE);
+        $ruleId = $this->helper->getCartAbandonmentRuleId();
 
-        $couponCode = $this->autoGerenateCouponCode($ruleId);
+        $couponCode = $this->helper->autoGerenateCouponCode($ruleId);
 
+        $templateType = $this->helper->getEmailTemplate();
         try {
             $this->inlineTranslation->suspend();
-            $sender = [
-                'name' => $senderName,
-                'email' => $senderEmail,
-            ];
-            $templateType = $this->scopeConfig->getValue('CartAbandonment/general/email_template', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
-            $transport = $this->transportBuilder
-                ->setTemplateIdentifier($templateType)
-                ->setTemplateOptions(
-                    [
-                        'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
-                        'store' => \Magento\Store\Model\Store::DEFAULT_STORE_ID,
-                    ]
-                )
+            $sender = ['name' => $senderName, 'email' => $senderEmail,];
 
-                ->setTemplateVars([
-                    'customer_name' => $customerName,
-                    'quote_id' => $quote->getId(),
-                    'coupon_code'=> $couponCode
-                ])
+            $transport = $this->transportBuilder->setTemplateIdentifier($templateType)
+                ->setTemplateOptions(['area' => Area::AREA_FRONTEND, 'store' => Store::DEFAULT_STORE_ID,])
+                ->setTemplateVars(
+                    ['customer_name' => $customerName, 'quote_id' => $quote->getId(), 'coupon_code' => $couponCode]
+                )
                 ->setFrom($sender)
                 ->addTo($customerEmail)
                 ->getTransport();
             $transport->sendMessage();
             $this->inlineTranslation->resume();
-            $quote->setAbandonmentStatus(1);
+            $quote->setAbandonmentStatus(self::ABANDONMENT_STATUS_SEND);
             $this->quoteRepository->save($quote);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             var_dump($e->getMessage());
         }
 

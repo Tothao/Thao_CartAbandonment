@@ -20,13 +20,13 @@ class QuoteFetcher
 
     public function getQuotesForAbandonment()
     {
-        $timeLimit = (new \DateTime())->modify('-24 hours')->format('Y-m-d H:i:s'); // 24h trước
+        $timeLimit = (new \DateTime())->modify('-24 hours')->format('Y-m-d H:i:s');
 
         $collection = $this->quoteCollectionFactory->create();
         $collection->addFieldToFilter('customer_id', ['notnull' => true])
             ->addFieldToFilter('abandonment_status', 0)
             ->addFieldToFilter('updated_at', ['lt' => $timeLimit]);
 
-        return $collection->getItems(); // Trả về danh sách các quote
+        return $collection->getItems();
     }
 }

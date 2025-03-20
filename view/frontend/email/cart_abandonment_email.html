@@ -1,6 +1,28 @@
+<!--@subject {{trans "Don't Forget Your Cart at %store_name!" store_name=$store.frontend_name}} @-->
+
+{{template config_path="design/email/header_template"}}
+
 <p>Hello {{var customer_name}},</p>
-<p> Tang ban ma giam gia {{var coupon_code}} </p>
-<p>You have items left in your cart. Click the link below to complete your purchase:</p>
-<p><a href="{{store url='checkout/cart'}}">Go to Cart</a></p>
-<p>Use the discount code <strong>{{var discount_code}}</strong> to get a special discount!</p>
-<p>Thank you for shopping with us!</p>
+
+<p>We noticed that you left some items in your cart. Don't miss out on completing your order!</p>
+
+<p>As a special treat, here’s a discount just for you:</p>
+
+<p style="font-size: 18px; font-weight: bold; color: #d9534f;">
+    Use code <strong>{{var discount_code}}</strong> at checkout to enjoy your savings!
+</p>
+
+<p>Click the button below to return to your cart and complete your purchase:</p>
+
+<p style="text-align: center;">
+    <a href="{{store url='checkout/cart'}}"
+       style="background-color: #5cb85c; color: #ffffff; padding: 10px 20px; text-decoration: none; font-weight: bold; border-radius: 5px;">
+        Go to Cart
+    </a>
+</p>
+
+<p>Thank you for choosing us. We look forward to serving you!</p>
+
+<p>Best regards,<br><strong>Your Store Team</strong></p>
+
+{{template config_path="design/email/footer_template"}}

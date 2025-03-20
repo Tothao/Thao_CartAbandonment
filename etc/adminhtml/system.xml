@@ -2,11 +2,10 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <!-- Section -->
-        <section id="CartAbandonment" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-            <label>Cart</label>
+        <section id="cart_abandonment" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Cart Abandonment</label>
             <tab>thao</tab>
-            <resource>Thao_CartAbandonment::Car_config</resource>
-
+            <resource>Thao_CartAbandonment::Cart_config</resource>
             <!-- Group -->
             <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>General Configuration</label>
@@ -17,19 +16,24 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
 
-                <!-- New Field for Time Input -->
                 <field id="filter_time" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enter Time </label>
+                    <label>Abandonment Time Threshold (Hours)</label>
+                    <comment>Enter the number of hours after which a cart is considered abandoned. For example, enter 24 for 1 day.</comment>
                 </field>
+
+                <field id="cron_cart_abandonment_alert" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Abandoned Cart Alert Schedule</label>
+                    <comment>Enter a cron expression to schedule the abandoned cart alert. For example, "0 * * * *" runs the alert every hour. Please refer to https://crontab.guru/ for more information.</comment>
+                </field>
+
                 <field id="email_template" translate="label" type="select" sortOrder="3" showInDefault="1" showInStore="1" showInWebsite="1">
-                    <label>Test Tab Email Template</label>
-                    <comment>Test tab email sent to xyz.</comment>
+                    <label>Abandoned Cart Email Template</label>
                     <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
                 </field>
                 <field id="discount_code" translate="label" type="select" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Discount Coupon Code</label>
-                    <comment>Select a coupon code from Cart Price Rules to send to abandonment customers.</comment>
-                    <source_model>Thao\CartAbandonment\Model\Config\Source\Coupon</source_model>
+                    <label>Abandoned Cart Discount Rule</label>
+                    <comment>Select a Cart Price Rule to apply a discount for abandoned cart customers.</comment>
+                    <source_model>Thao\CartAbandonment\Model\Config\Source\Rule</source_model>
                 </field>
             </group>
         </section>

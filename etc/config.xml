@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/config.xsd">
+    <default>
+        <cart_abandonment>
+            <general>
+                <enable>1</enable>
+                <filter_time>24</filter_time>
+                <cron_cart_abandonment_alert>*/10 * * * *</cron_cart_abandonment_alert>
+                <email_template>cart_abandonment_email_template</email_template>
+            </general>
+        </cart_abandonment>
+    </default>
+</config>

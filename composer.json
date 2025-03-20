@@ -1,0 +1,26 @@
+{
+    "name": "thao/module-cart-abandonment",
+    "description": "Magento 2 module cart abandonment",
+    "require": {
+        "magento/framework": "^103.0.0"
+    },
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": [
+        "proprietary"
+    ],
+    "authors": [
+        {
+            "name": "To Thao",
+            "email": "tothao2502@gmail.com"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Thao\\CartAbandonment\\": ""
+        }
+    }
+}
