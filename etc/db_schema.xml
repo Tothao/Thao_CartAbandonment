@@ -2,7 +2,4 @@
     <table name="quote" resource="default" engine="innodb" comment="quote">
         <column name="abandonment_status" nullable="false" xsi:type="smallint" comment="abandonment_status" default="0"/>
     </table>
-    <table name="salesrule_coupon" resource="default" engine="innodb" comment="salesrule_coupon">
-        <column name="activate" nullable="false" xsi:type="smallint" comment="activate" default="0"/>
-    </table>
 </schema>

@@ -38,6 +38,25 @@ Magento 2 module for tracking and recovering abandoned carts.
    php bin/magento setup:di:compile
    php bin/magento cache:flush
    ```
+## Configuration Guide
+
+To configure the module, go to **Admin > Configuration > Thaott > Cart Abandonment > General Configuration**.
+
+### Available Settings:
+
+- **Module Enable:** Enable/disable the module.
+- **Abandonment Time Threshold (Hours):** Enter the number of hours after which a cart is considered abandoned. For example, enter 24 for 1 day.
+- **Abandoned Cart Email Template:** Select an email template to send notifications to customers.
+- **Abandoned Cart Discount Rule:** Choose a predefined Cart Price Rule to generate coupon codes for abandoned cart customers.
+- **Abandoned Cart Alert Schedule:**
+    - Example: `*/10 * * * *`
+    - Enter a cron expression to schedule the abandoned cart alert.
+    - Example: `*/10 * * * *` runs the alert every 10 min.
+    - Refer to [crontab.guru](https://crontab.guru/) for more information.
+
+![General Configuration](docs/images/general_configuration.png)
+
+![Email](docs/images/cart_email.png)
 
 ## Support
 

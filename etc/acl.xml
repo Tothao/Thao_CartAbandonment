@@ -3,7 +3,7 @@
 	<acl>
 		<resources>
 			<resource id="Magento_Backend::admin">
-                <resource id="Thao_CartAbandonment::Car_config" title="Cart Abandonment Config" sortOrder="10"/>
+                <resource id="Thao_CartAbandonment::Cart_config" title="Cart Abandonment Config" sortOrder="10"/>
 			</resource>
 		</resources>
 	</acl>

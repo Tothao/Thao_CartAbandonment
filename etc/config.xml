@@ -6,7 +6,7 @@
                 <enable>1</enable>
                 <filter_time>24</filter_time>
                 <cron_cart_abandonment_alert>*/10 * * * *</cron_cart_abandonment_alert>
-                <email_template>cart_abandonment_email_template</email_template>
+                <email_template>cart_abandonment_general_email_template</email_template>
             </general>
         </cart_abandonment>
     </default>
